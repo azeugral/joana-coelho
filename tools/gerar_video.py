@@ -22,7 +22,7 @@ with sync_playwright() as p:
         dict(bin=b64('assets/hero/fio.bin', 'application/octet-stream'), meta=meta, tex=[b64(f"assets/hero/{f['tex']}.webp", 'image/webp') if f['tex'] else None for f in meta['fig']]))
 
     def foto(t, W, H, q=.96):
-        d = g.evaluate(f"(T.desenha({t},{W / 3},{H / 3},3,2,0),document.getElementById('c').toDataURL('image/jpeg',{q}))")
+        d = g.evaluate(f"(T.desenha({t},{W / 3},{H / 3},3,2,.55),document.getElementById('c').toDataURL('image/jpeg',{q}))")
         return base64.b64decode(d.split(',', 1)[1])
     if 'poster' in Q:
         for n, W, H, t in (('pe', 1080, 1920, 13), ('deitado', 1920, 1080, 13)):
@@ -38,7 +38,7 @@ with sync_playwright() as p:
     if 'video' in Q:
         mp4 = S / 'assets/video/hero-pe.mp4'; n = 32 * FPS
         enc = subprocess.Popen([ff, '-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', str(FPS), '-c:v', 'mjpeg', '-i', '-',
-                                '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-color_range', 'tv', '-r', str(FPS), '-movflags', '+faststart', '-an', str(mp4)], stdin=subprocess.PIPE)
+                                '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-color_range', 'tv', '-r', str(FPS), '-movflags', '+faststart', '-an', str(mp4)], stdin=subprocess.PIPE)
         t0 = time.time()
         for i in range(n):
             enc.stdin.write(foto(i / FPS, 1080, 1920))
