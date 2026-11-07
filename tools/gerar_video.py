@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Grava o hero do celular (laco fechado de 32 s em 1080x1920) e os posteres. Uso: python tools/gerar_video.py [poster] [video] [fps]"""
+"""Grava o hero do celular (laco fechado em 1080x1920) e os posteres. Uso: python tools/gerar_video.py [poster] [video] [fps]"""
 import base64, io, json, shutil, subprocess, sys, time
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -25,18 +25,18 @@ with sync_playwright() as p:
         d = g.evaluate(f"(T.desenha({t},{W / 3},{H / 3},3,2,.55),document.getElementById('c').toDataURL('image/jpeg',{q}))")
         return base64.b64decode(d.split(',', 1)[1])
     if 'poster' in Q:
-        for n, W, H, t in (('pe', 1080, 1920, 13), ('deitado', 1920, 1080, 13)):
+        for n, W, H, t in (('pe', 1080, 1920, 7), ('deitado', 1920, 1080, 7)):
             Image.open(io.BytesIO(foto(t, W, H))).save(S / f'assets/img/hero-{n}.webp', quality=84, method=6)
             print('poster', n, flush=True)
     if 'poster' in Q:
         fn = b64('assets/fonts/fahkwang-300-latin.woff2', 'font/woff2')
-        fundo = 'data:image/jpeg;base64,' + base64.b64encode(foto(4.2, 1200, 700)).decode()
+        fundo = 'data:image/jpeg;base64,' + base64.b64encode(foto(1.8, 1200, 700)).decode()
         o = b.new_page(viewport={'width': 1200, 'height': 630})
         o.set_content(f'''<style>@font-face{{font-family:F;src:url({fn})}}body{{margin:0;width:1200px;height:630px;background:url({fundo}) 0 -50px;overflow:hidden;position:relative}}
           p{{position:absolute;left:0;right:0;bottom:44px;margin:0;text-align:center;font:300 58px/1.2 F;color:#1b1815}}</style><p>Joana Coelho</p>''')
         o.wait_for_timeout(500); o.screenshot(path=str(S / 'assets/img/og.jpg'), type='jpeg', quality=88); o.close(); print('og', flush=True)
     if 'video' in Q:
-        mp4 = S / 'assets/video/hero-pe.mp4'; n = 32 * FPS
+        mp4 = S / 'assets/video/hero-pe.mp4'; n = round(g.evaluate('fioCiclo') * FPS)
         enc = subprocess.Popen([ff, '-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', str(FPS), '-c:v', 'mjpeg', '-i', '-',
                                 '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-color_range', 'tv', '-r', str(FPS), '-movflags', '+faststart', '-an', str(mp4)], stdin=subprocess.PIPE)
         t0 = time.time()

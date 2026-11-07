@@ -113,18 +113,19 @@
     return { p, u };
   }
 
-  /* tempo: 4 figuras, D segundos cada */
-  const D = 8;
-  const CICLO = D * 4;
+  /* tempo: assinatura curta, a arte fica mais tempo que ela */
+  const DUR = [3.6, 7, 7, 7];
+  const CICLO = DUR.reduce((a, b) => a + b, 0);
   const liso = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
   const lento = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * t * (t * (6 * t - 15) + 10); };
   function estado(T) {
-    const t = ((T % CICLO) + CICLO) % CICLO, f = Math.floor(t / D), s = t - f * D;
-    const tece = lento(0, 2.2, s), desfia = lento(D - 2, D - .05, s);
-    const w = tece * (1 - desfia);
-    if (f === 0) return { f, w, r: 0, rasto: 1 };       /* assinatura: so o fio */
-    const r = liso(1.5, 3.3, s) * (1 - liso(D - 3, D - 2, s));
-    const rasto = 1 - liso(2.7, 3.5, s) * (1 - liso(D - 3.3, D - 2.6, s));
+    let s = ((T % CICLO) + CICLO) % CICLO, f = 0;
+    while (s >= DUR[f]) { s -= DUR[f]; f++; }
+    const D = DUR[f];
+    if (f === 0) return { f, w: lento(0, 1.5, s) * (1 - lento(D - 1.2, D - .05, s)), r: 0, rasto: 1 };   /* assinatura: so o fio */
+    const w = lento(0, 1.7, s) * (1 - lento(D - 1.6, D - .05, s));
+    const r = liso(1.1, 2.3, s) * (1 - liso(D - 2.4, D - 1.6, s));
+    const rasto = 1 - liso(1.9, 2.6, s) * (1 - liso(D - 2.6, D - 2, s));
     return { f, w, r, rasto };
   }
 

@@ -13,7 +13,7 @@
     if (!t0) t0 = now;
     const s = (now - t0) / 1000;
     const dpr = Math.min(devicePixelRatio || 1, 2);
-    motor.desenha(calmo ? 4 : s, HW, HH, dpr, calmo ? 2 : Math.min(2, s * 1.1));
+    motor.desenha(calmo ? 7 : s, HW, HH, dpr, calmo ? 2 : Math.min(2, s * 1.1));
   }
   const liga = () => { if (motor && !rodando && visivel && !document.hidden) { rodando = true; requestAnimationFrame(quadro); } };
   const desliga = () => { rodando = false; };
@@ -28,7 +28,7 @@
       meta.fig.forEach((f, i) => { if (!f.tex) return; const m = new Image(); m.src = `assets/hero/${f.tex}.webp`; m.decode().then(() => motor.textura(i, m)).catch(() => {}); });
       if (tInicial) t0 = performance.now() - tInicial * 1000;
       liga();
-      new ResizeObserver(() => { const l = HW; mede(); if (Math.abs(l - HW) > 1 && !rodando) motor.desenha(4, HW, HH, Math.min(devicePixelRatio || 1, 2), 2); }).observe(hero);
+      new ResizeObserver(() => { const l = HW; mede(); if (Math.abs(l - HW) > 1 && !rodando) motor.desenha(7, HW, HH, Math.min(devicePixelRatio || 1, 2), 2); }).observe(hero);
       new IntersectionObserver(e => { visivel = e[0].isIntersecting; visivel ? liga() : desliga(); }).observe(hero);
       document.addEventListener('visibilitychange', () => document.hidden ? desliga() : liga());
     } catch (e) { hero.style.background = 'var(--parede) url(assets/img/hero-pe.webp) center/cover'; }
