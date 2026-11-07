@@ -41,3 +41,13 @@ P = [
     (323, 'animais', 'Borboleta e folhas no peito'),
     (348, 'animais', 'Lobo em linha fina'),
 ]
+
+# fotos com cor real que ficam melhores em P&B na grade
+SEMPRE_PB = set()
+
+# ritmo da grade: cor e P&B em xadrez, a partir das fotos que tem cor real
+COR = {81, 64, 40, 12, 61, 11, 130, 50, 110, 52, 9, 143, 430, 439}
+_c = [p for p in P if p[0] in COR]; _m = [p for p in P if p[0] not in COR]; P = []
+while _c or _m:
+    i = len(P); quer_cor = (i % 4 + i // 4) % 2 == 0
+    P.append((_c if (quer_cor and _c) or not _m else _m).pop(0))

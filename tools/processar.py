@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Portfolio: grade 4:5 em P&B com o mesmo tom, enquadrada na tatuagem; original a cores para abrir. Uso: python tools/processar.py"""
+"""Portfolio: grade 4:5 enquadrada na tatuagem. Foto com cor real fica a cores (cor.py); foto que ja e P&B segue P&B quente. Uso: python tools/processar.py"""
 import os, sys, json, cv2, numpy as np
 from PIL import Image, ImageDraw
 sys.path.insert(0, os.path.dirname(__file__))
-import dados
+import dados, cor
 R = os.path.expanduser('~/Documents/PROJETOS LRGZ/Joana Coelho'); S = R + '/site'
 os.makedirs(S + '/assets/img/p', exist_ok=True); os.makedirs(S + '/assets/img/o', exist_ok=True)
 AJ = {}   # id: (fx, fy, zoom) ajustes manuais
@@ -34,7 +34,16 @@ def faz(p):
     fx, fy, z = (a[0] if a[0] is not None else cx, a[1] if a[1] is not None else cy, a[2])
     ch = min(h, w * 5 / 4) * z; cw = ch * 4 / 5
     x0 = int(np.clip(fx * w - cw / 2, 0, w - cw)); y0 = int(np.clip(fy * h - ch / 2, 0, h - ch))
-    c = g[y0:int(y0 + ch), x0:int(x0 + cw)].astype(np.float32)
+    x1, y1 = int(x0 + cw), int(y0 + ch)
+    if cor.croma(im[y0:y1, x0:x1]) >= 3 and arq not in dados.SEMPRE_PB:
+        t = cor.grade(im[y0:y1, x0:x1], .6)
+        t = cv2.resize(t, (720, 900), interpolation=cv2.INTER_AREA if cw > 720 else cv2.INTER_CUBIC)
+        if cw < 720: t = cor.nitidez(t, .5, 1.4)
+        Image.fromarray((t * 255 + .5).astype(np.uint8)).save(f'{S}/assets/img/p/{arq}.webp', quality=82, method=6)
+        o = Image.open(f).convert('RGB'); o.thumbnail((1500, 1500), Image.LANCZOS)
+        o.save(f'{S}/assets/img/o/{arq}.webp', quality=80, method=6)
+        return o.size
+    c = g[y0:y1, x0:x1].astype(np.float32)
     lo, hi = np.percentile(c, .4), np.percentile(c, 99.9)
     c = np.clip((c - lo) / (hi - lo), 0, 1)
     c = c ** (np.log(.62) / np.log(max(.05, float(np.median(c)))))     # mesma luz em todas
